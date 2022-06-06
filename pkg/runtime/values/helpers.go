@@ -381,6 +381,10 @@ func ToFloat(input core.Value) Float {
 }
 
 func ToString(input core.Value) String {
+	if input == nil {
+		return EmptyString
+	}
+
 	switch val := input.(type) {
 	case String:
 		return val

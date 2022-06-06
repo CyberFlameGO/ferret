@@ -2,6 +2,7 @@ package dom
 
 import (
 	"context"
+	"github.com/MontFerret/ferret/pkg/drivers/cdp/dom/actions"
 	"hash/fnv"
 	"strings"
 	"time"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/MontFerret/ferret/pkg/drivers"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/eval"
-	"github.com/MontFerret/ferret/pkg/drivers/cdp/events"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/input"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/templates"
 	"github.com/MontFerret/ferret/pkg/drivers/common"
@@ -24,11 +24,11 @@ import (
 )
 
 type HTMLElement struct {
+	*Observable
+	*actions.Dispatcher
 	logger   zerolog.Logger
 	client   *cdp.Client
 	dom      *Manager
-	input    *input.Manager
-	eval     *eval.Runtime
 	id       runtime.RemoteObjectID
 	nodeType *common.LazyValue
 	nodeName *common.LazyValue
@@ -41,15 +41,16 @@ func NewHTMLElement(
 	input *input.Manager,
 	exec *eval.Runtime,
 	id runtime.RemoteObjectID,
-) *HTMLElement {
+) drivers.HTMLElement {
 	el := new(HTMLElement)
+	el.Observable = NewObservable(id, exec)
+	el.Dispatcher = actions.NewDispatcher(id, input)
 	el.logger = logging.
 		WithName(logger.With(), "dom_element").
 		Str("object_id", string(id)).
 		Logger()
 	el.client = client
 	el.dom = domManager
-	el.input = input
 	el.eval = exec
 	el.id = id
 	el.nodeType = common.NewLazyValue(func(ctx context.Context) (core.Value, error) {
@@ -358,250 +359,6 @@ func (el *HTMLElement) ExistsBySelector(ctx context.Context, selector drivers.Qu
 	}
 
 	return values.ToBoolean(out), nil
-}
-
-func (el *HTMLElement) WaitForElement(ctx context.Context, selector drivers.QuerySelector, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForElement(el.id, selector, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForElementAll(ctx context.Context, selector drivers.QuerySelector, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForElementAll(el.id, selector, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForClass(ctx context.Context, class values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForClass(el.id, class, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForClassBySelector(ctx context.Context, selector drivers.QuerySelector, class values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForClassBySelector(el.id, selector, class, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForClassBySelectorAll(ctx context.Context, selector drivers.QuerySelector, class values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForClassBySelectorAll(el.id, selector, class, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForAttribute(
-	ctx context.Context,
-	name values.String,
-	value core.Value,
-	when drivers.WaitEvent,
-) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForAttribute(el.id, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForAttributeBySelector(ctx context.Context, selector drivers.QuerySelector, name values.String, value core.Value, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForAttributeBySelector(el.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForAttributeBySelectorAll(ctx context.Context, selector drivers.QuerySelector, name values.String, value core.Value, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForAttributeBySelectorAll(el.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForStyle(ctx context.Context, name values.String, value core.Value, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForStyle(el.id, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForStyleBySelector(ctx context.Context, selector drivers.QuerySelector, name values.String, value core.Value, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForStyleBySelector(el.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) WaitForStyleBySelectorAll(ctx context.Context, selector drivers.QuerySelector, name values.String, value core.Value, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		el.eval,
-		templates.WaitForStyleBySelectorAll(el.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (el *HTMLElement) Click(ctx context.Context, count values.Int) error {
-	return el.input.Click(ctx, el.id, int(count))
-}
-
-func (el *HTMLElement) ClickBySelector(ctx context.Context, selector drivers.QuerySelector, count values.Int) error {
-	return el.input.ClickBySelector(ctx, el.id, selector, count)
-}
-
-func (el *HTMLElement) ClickBySelectorAll(ctx context.Context, selector drivers.QuerySelector, count values.Int) error {
-	elements, err := el.QuerySelectorAll(ctx, selector)
-
-	if err != nil {
-		return err
-	}
-
-	elements.ForEach(func(value core.Value, idx int) bool {
-		found := value.(*HTMLElement)
-
-		if e := found.Click(ctx, count); e != nil {
-			err = e
-			return false
-		}
-
-		return true
-	})
-
-	return err
-}
-
-func (el *HTMLElement) Input(ctx context.Context, value core.Value, delay values.Int) error {
-	name, err := el.GetNodeName(ctx)
-
-	if err != nil {
-		return err
-	}
-
-	if strings.ToLower(string(name)) != "input" {
-		return core.Error(core.ErrInvalidOperation, "element is not an <input> element.")
-	}
-
-	return el.input.Type(ctx, el.id, input.TypeParams{
-		Text:  value.String(),
-		Clear: false,
-		Delay: time.Duration(delay) * time.Millisecond,
-	})
-}
-
-func (el *HTMLElement) InputBySelector(ctx context.Context, selector drivers.QuerySelector, value core.Value, delay values.Int) error {
-	return el.input.TypeBySelector(ctx, el.id, selector, input.TypeParams{
-		Text:  value.String(),
-		Clear: false,
-		Delay: time.Duration(delay) * time.Millisecond,
-	})
-}
-
-func (el *HTMLElement) Press(ctx context.Context, keys []values.String, count values.Int) error {
-	return el.input.Press(ctx, values.UnwrapStrings(keys), int(count))
-}
-
-func (el *HTMLElement) PressBySelector(ctx context.Context, selector drivers.QuerySelector, keys []values.String, count values.Int) error {
-	return el.input.PressBySelector(ctx, el.id, selector, values.UnwrapStrings(keys), int(count))
-}
-
-func (el *HTMLElement) Clear(ctx context.Context) error {
-	return el.input.Clear(ctx, el.id)
-}
-
-func (el *HTMLElement) ClearBySelector(ctx context.Context, selector drivers.QuerySelector) error {
-	return el.input.ClearBySelector(ctx, el.id, selector)
-}
-
-func (el *HTMLElement) Select(ctx context.Context, value *values.Array) (*values.Array, error) {
-	return el.input.Select(ctx, el.id, value)
-}
-
-func (el *HTMLElement) SelectBySelector(ctx context.Context, selector drivers.QuerySelector, value *values.Array) (*values.Array, error) {
-	return el.input.SelectBySelector(ctx, el.id, selector, value)
-}
-
-func (el *HTMLElement) ScrollIntoView(ctx context.Context, options drivers.ScrollOptions) error {
-	return el.input.ScrollIntoView(ctx, el.id, options)
-}
-
-func (el *HTMLElement) Focus(ctx context.Context) error {
-	return el.input.Focus(ctx, el.id)
-}
-
-func (el *HTMLElement) FocusBySelector(ctx context.Context, selector drivers.QuerySelector) error {
-	return el.input.FocusBySelector(ctx, el.id, selector)
-}
-
-func (el *HTMLElement) Blur(ctx context.Context) error {
-	return el.input.Blur(ctx, el.id)
-}
-
-func (el *HTMLElement) BlurBySelector(ctx context.Context, selector drivers.QuerySelector) error {
-	return el.input.BlurBySelector(ctx, el.id, selector)
-}
-
-func (el *HTMLElement) Hover(ctx context.Context) error {
-	return el.input.MoveMouse(ctx, el.id)
-}
-
-func (el *HTMLElement) HoverBySelector(ctx context.Context, selector drivers.QuerySelector) error {
-	return el.input.MoveMouseBySelector(ctx, el.id, selector)
 }
 
 func (el *HTMLElement) logError(err error) *zerolog.Event {

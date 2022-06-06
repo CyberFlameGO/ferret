@@ -107,7 +107,7 @@ func (t String) Copy() core.Value {
 }
 
 func (t String) Length() Int {
-	return Int(len([]rune(string(t))))
+	return Int(len([]rune(t)))
 }
 
 func (t String) Contains(other String) Boolean {
@@ -124,4 +124,12 @@ func (t String) Concat(other core.Value) String {
 
 func (t String) At(index Int) String {
 	return String([]rune(t)[index])
+}
+
+func (t String) StartsWith(other String) Boolean {
+	return Boolean(strings.HasPrefix(string(t), string(other)))
+}
+
+func (t String) EndsWith(other String) Boolean {
+	return Boolean(strings.HasSuffix(string(t), string(other)))
 }

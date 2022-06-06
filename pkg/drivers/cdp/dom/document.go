@@ -2,6 +2,7 @@ package dom
 
 import (
 	"context"
+	"github.com/MontFerret/ferret/pkg/drivers/cdp/dom/actions"
 	"hash/fnv"
 
 	"github.com/mafredri/cdp"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/MontFerret/ferret/pkg/drivers"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/eval"
-	"github.com/MontFerret/ferret/pkg/drivers/cdp/events"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/input"
 	"github.com/MontFerret/ferret/pkg/drivers/cdp/templates"
 	"github.com/MontFerret/ferret/pkg/drivers/common"
@@ -21,11 +21,11 @@ import (
 )
 
 type HTMLDocument struct {
+	*Observable
+	*actions.Dispatcher
 	logger    zerolog.Logger
 	client    *cdp.Client
 	dom       *Manager
-	input     *input.Manager
-	eval      *eval.Runtime
 	frameTree page.FrameTree
 	element   *HTMLElement
 }
@@ -38,8 +38,10 @@ func NewHTMLDocument(
 	exec *eval.Runtime,
 	rootElement *HTMLElement,
 	frames page.FrameTree,
-) *HTMLDocument {
+) drivers.HTMLDocument {
 	doc := new(HTMLDocument)
+	doc.Observable = NewObservable(rootElement.id, exec)
+	doc.Dispatcher = actions.NewDispatcher(rootElement.id, input)
 	doc.logger = logging.WithName(logger.With(), "html_document").Logger()
 	doc.client = client
 	doc.dom = domManager
@@ -216,122 +218,6 @@ func (doc *HTMLDocument) GetElement() drivers.HTMLElement {
 
 func (doc *HTMLDocument) GetURL() values.String {
 	return values.NewString(doc.frameTree.Frame.URL)
-}
-
-func (doc *HTMLDocument) MoveMouseByXY(ctx context.Context, x, y values.Float) error {
-	return doc.input.MoveMouseByXY(ctx, x, y)
-}
-
-func (doc *HTMLDocument) WaitForElement(ctx context.Context, selector drivers.QuerySelector, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForElement(doc.element.id, selector, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForClassBySelector(ctx context.Context, selector drivers.QuerySelector, class values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForClassBySelector(doc.element.id, selector, class, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForClassBySelectorAll(ctx context.Context, selector drivers.QuerySelector, class values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForClassBySelectorAll(doc.element.id, selector, class, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForAttributeBySelector(
-	ctx context.Context,
-	selector drivers.QuerySelector,
-	name,
-	value values.String,
-	when drivers.WaitEvent,
-) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForAttributeBySelector(doc.element.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForAttributeBySelectorAll(
-	ctx context.Context,
-	selector drivers.QuerySelector,
-	name,
-	value values.String,
-	when drivers.WaitEvent,
-) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForAttributeBySelectorAll(doc.element.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForStyleBySelector(ctx context.Context, selector drivers.QuerySelector, name, value values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForStyleBySelector(doc.element.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) WaitForStyleBySelectorAll(ctx context.Context, selector drivers.QuerySelector, name, value values.String, when drivers.WaitEvent) error {
-	task := events.NewEvalWaitTask(
-		doc.eval,
-		templates.WaitForStyleBySelectorAll(doc.element.id, selector, name, value, when),
-		events.DefaultPolling,
-	)
-
-	_, err := task.Run(ctx)
-
-	return err
-}
-
-func (doc *HTMLDocument) ScrollTop(ctx context.Context, options drivers.ScrollOptions) error {
-	return doc.input.ScrollTop(ctx, options)
-}
-
-func (doc *HTMLDocument) ScrollBottom(ctx context.Context, options drivers.ScrollOptions) error {
-	return doc.input.ScrollBottom(ctx, options)
-}
-
-func (doc *HTMLDocument) ScrollBySelector(ctx context.Context, selector drivers.QuerySelector, options drivers.ScrollOptions) error {
-	return doc.input.ScrollIntoViewBySelector(ctx, doc.element.id, selector, options)
-}
-
-func (doc *HTMLDocument) Scroll(ctx context.Context, options drivers.ScrollOptions) error {
-	return doc.input.ScrollByXY(ctx, options)
 }
 
 func (doc *HTMLDocument) Eval() *eval.Runtime {

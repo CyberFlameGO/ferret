@@ -43,6 +43,18 @@ func (v QuerySelectorKind) String() string {
 	return qsvStr[UnknownSelector]
 }
 
+func IsValidSelector(selector QuerySelector) bool {
+	return selector.kind != UnknownSelector
+}
+
+func NewSelector(value values.String) QuerySelector {
+	if value.StartsWith("/") {
+		return NewXPathSelector(value)
+	}
+
+	return NewCSSSelector(value)
+}
+
 func NewCSSSelector(value values.String) QuerySelector {
 	return QuerySelector{
 		kind:  CSSSelector,

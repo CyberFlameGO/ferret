@@ -102,8 +102,6 @@ type (
 
 		ClickBySelector(ctx context.Context, selector QuerySelector, count values.Int) error
 
-		ClickBySelectorAll(ctx context.Context, selector QuerySelector, count values.Int) error
-
 		Clear(ctx context.Context) error
 
 		ClearBySelector(ctx context.Context, selector QuerySelector) error
