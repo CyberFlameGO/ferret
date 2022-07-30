@@ -1,4 +1,4 @@
-// Code generated from antlr/FqlParser.g4 by ANTLR 4.9.3. DO NOT EDIT.
+// Code generated from antlr/FqlParser.g4 by ANTLR 4.10.1. DO NOT EDIT.
 
 package fql // FqlParser
 import "github.com/antlr/antlr4/runtime/Go/antlr"
@@ -91,8 +91,8 @@ type FqlParserVisitor interface {
 	// Visit a parse tree produced by FqlParser#waitForExpression.
 	VisitWaitForExpression(ctx *WaitForExpressionContext) interface{}
 
-	// Visit a parse tree produced by FqlParser#createEventExpression.
-	VisitCreateEventExpression(ctx *CreateEventExpressionContext) interface{}
+	// Visit a parse tree produced by FqlParser#dispatchEventExpression.
+	VisitDispatchEventExpression(ctx *DispatchEventExpressionContext) interface{}
 
 	// Visit a parse tree produced by FqlParser#eventName.
 	VisitEventName(ctx *EventNameContext) interface{}

@@ -1,4 +1,4 @@
-// Code generated from antlr/FqlParser.g4 by ANTLR 4.9.3. DO NOT EDIT.
+// Code generated from antlr/FqlParser.g4 by ANTLR 4.10.1. DO NOT EDIT.
 
 package fql // FqlParser
 import "github.com/antlr/antlr4/runtime/Go/antlr"
@@ -188,11 +188,11 @@ func (s *BaseFqlParserListener) EnterWaitForExpression(ctx *WaitForExpressionCon
 // ExitWaitForExpression is called when production waitForExpression is exited.
 func (s *BaseFqlParserListener) ExitWaitForExpression(ctx *WaitForExpressionContext) {}
 
-// EnterCreateEventExpression is called when production createEventExpression is entered.
-func (s *BaseFqlParserListener) EnterCreateEventExpression(ctx *CreateEventExpressionContext) {}
+// EnterDispatchEventExpression is called when production dispatchEventExpression is entered.
+func (s *BaseFqlParserListener) EnterDispatchEventExpression(ctx *DispatchEventExpressionContext) {}
 
-// ExitCreateEventExpression is called when production createEventExpression is exited.
-func (s *BaseFqlParserListener) ExitCreateEventExpression(ctx *CreateEventExpressionContext) {}
+// ExitDispatchEventExpression is called when production dispatchEventExpression is exited.
+func (s *BaseFqlParserListener) ExitDispatchEventExpression(ctx *DispatchEventExpressionContext) {}
 
 // EnterEventName is called when production eventName is entered.
 func (s *BaseFqlParserListener) EnterEventName(ctx *EventNameContext) {}

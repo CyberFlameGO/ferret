@@ -68,15 +68,15 @@ func newCompilerWithDispatcher() (*compiler.Compiler, *TestDispatcher) {
 	return c, d
 }
 
-func TestCreateEventExpression(t *testing.T) {
-	Convey("CREATE EVENT parser", t, func() {
+func TestDispatchEventExpression(t *testing.T) {
+	Convey("DISPATCH EVENT parser", t, func() {
 		Convey("Should parse", func() {
 			c, _ := newCompilerWithDispatcher()
 
 			_, err := c.Compile(`
 LET obj = {}
 
-CREATE EVENT "test" IN obj
+DISPATCH EVENT "test" IN obj
 
 RETURN NONE
 `)
@@ -90,7 +90,7 @@ RETURN NONE
 			_, err := c.Compile(`
 LET obj = {}
 
-CREATE EVENT "test" IN obj TIMEOUT 1000
+DISPATCH EVENT "test" IN obj TIMEOUT 1000
 
 RETURN NONE
 `)
@@ -105,7 +105,7 @@ RETURN NONE
 LET obj = {}
 
 LET tmt = 1000
-CREATE EVENT "test" IN obj TIMEOUT tmt
+DISPATCH EVENT "test" IN obj TIMEOUT tmt
 
 RETURN NONE
 `)
@@ -120,7 +120,7 @@ RETURN NONE
 LET obj = {}
 
 LET tmt = 1000
-CREATE EVENT "test" IN obj TIMEOUT tmt
+DISPATCH EVENT "test" IN obj TIMEOUT tmt
 
 RETURN NONE
 `)
@@ -129,14 +129,14 @@ RETURN NONE
 		})
 	})
 
-	Convey("CREATE EVENT X IN Y runtime", t, func() {
+	Convey("DISPATCH EVENT X IN Y runtime", t, func() {
 		Convey("Should wait for a given event", func() {
 			c, d := newCompilerWithDispatcher()
 
 			prog := c.MustCompile(`
 LET obj = X::DISPATCHER()
 
-CREATE EVENT "test" IN obj
+DISPATCH EVENT "test" IN obj
 
 RETURN NONE
 `)
@@ -154,7 +154,7 @@ RETURN NONE
 LET eventName = "test"
 LET obj = X::DISPATCHER()
 
-CREATE EVENT eventName IN obj
+DISPATCH EVENT eventName IN obj
 
 RETURN NONE
 `)
@@ -175,8 +175,8 @@ LET evt = {
 }
 LET obj = X::DISPATCHER()
 
-CREATE EVENT evt.name IN obj
-CREATE EVENT evt.name IN obj
+DISPATCH EVENT evt.name IN obj
+DISPATCH EVENT evt.name IN obj
 
 RETURN NONE
 `)
@@ -193,7 +193,7 @@ RETURN NONE
 			prog := c.MustCompile(`
 LET obj = X::DISPATCHER()
 
-CREATE EVENT @evt IN obj
+DISPATCH EVENT @evt IN obj
 
 RETURN NONE
 `)
@@ -210,8 +210,8 @@ RETURN NONE
 			prog := c.MustCompile(`
 			LET obj = X::DISPATCHER()
 
-			CREATE EVENT "test" IN obj WITH "foo"
-			CREATE EVENT "test2" IN obj WITH ["foo", "bar"]
+			DISPATCH EVENT "test" IN obj WITH "foo"
+			DISPATCH EVENT "test2" IN obj WITH ["foo", "bar"]
 			
 			RETURN NONE
 			`)
@@ -230,7 +230,7 @@ RETURN NONE
 			prog := c.MustCompile(`
 					LET obj = X::DISPATCHER()
 		
-					CREATE EVENT "test" IN obj OPTIONS { value: "foo" }
+					DISPATCH EVENT "test" IN obj OPTIONS { value: "foo" }
 		
 					RETURN NONE
 					`)

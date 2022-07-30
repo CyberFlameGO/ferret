@@ -181,8 +181,8 @@ func (v *visitor) visitBodyStatement(c fql.IBodyStatementContext, scope *scope) 
 		return v.visitWaitForExpression(waitfor, scope)
 	}
 
-	if createEvent := ctx.CreateEventExpression(); createEvent != nil {
-		return v.visitCreateEventExpression(createEvent, scope)
+	if dispatchEvent := ctx.DispatchEventExpression(); dispatchEvent != nil {
+		return v.visitDispatchEventExpression(dispatchEvent, scope)
 	}
 
 	return nil, v.unexpectedToken(ctx)
@@ -908,8 +908,8 @@ func (v *visitor) visitTimeoutClause(c fql.ITimeoutClauseContext, s *scope) (cor
 	return nil, ErrNotImplemented
 }
 
-func (v *visitor) visitCreateEventExpression(c fql.ICreateEventExpressionContext, s *scope) (core.Expression, error) {
-	ctx := c.(*fql.CreateEventExpressionContext)
+func (v *visitor) visitDispatchEventExpression(c fql.IDispatchEventExpressionContext, s *scope) (core.Expression, error) {
+	ctx := c.(*fql.DispatchEventExpressionContext)
 
 	eventName, err := v.visitEventNameContext(ctx.EventName(), s)
 
