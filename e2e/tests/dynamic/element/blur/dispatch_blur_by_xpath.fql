@@ -1,0 +1,12 @@
+LET url = @lab.cdn.dynamic + "/#/events"
+LET page = DOCUMENT(url, true)
+
+DISPATCH "focus" IN page OPTIONS { selector: X('.//*[@id="focus-input"]') }
+
+WAIT_CLASS(page, "#focus-content", "alert-success")
+
+DISPATCH "blur" IN page OPTIONS { selector: X('.//*[@id="focus-input"]') }
+
+WAIT_NO_CLASS(page, "#focus-content", "alert-success")
+
+RETURN TRUE

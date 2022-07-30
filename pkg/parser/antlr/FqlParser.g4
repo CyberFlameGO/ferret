@@ -149,7 +149,7 @@ waitForExpression
     ;
 
 dispatchEventExpression
-    : Dispatch Event eventName In eventSource (With eventArguments)? (optionsClause)? (filterClause)? (timeoutClause)?
+    : Dispatch eventName In eventSource (With eventArguments)? (optionsClause)? (filterClause)? (timeoutClause)?
     ;
 
 eventName

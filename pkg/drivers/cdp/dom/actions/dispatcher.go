@@ -92,7 +92,7 @@ func (dispatcher *Dispatcher) Dispatch(ctx context.Context, action events.Action
 
 		return nil, dispatcher.Hover(ctx)
 	default:
-		return values.None, nil
+		return values.None, core.Errorf(core.ErrInvalidOperation, "unknown event: %s", action.Name)
 	}
 }
 
