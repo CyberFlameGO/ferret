@@ -69,16 +69,28 @@ func (dispatcher *Dispatcher) Dispatch(ctx context.Context, action events.Action
 		scrollOptions := getScrollOptions(opts)
 
 		if drivers.IsValidSelector(selector) {
-			return dispatcher.SelectBySelector(ctx, selector, selectOptions)
+			return nil, dispatcher.ScrollBySelector(ctx, selector, scrollOptions)
 		}
 
-		return nil, nil
+		return nil, dispatcher.Scroll(ctx, scrollOptions)
 	case "focus":
-		return nil, nil
+		if drivers.IsValidSelector(selector) {
+			return nil, dispatcher.FocusBySelector(ctx, selector)
+		}
+
+		return nil, dispatcher.Focus(ctx)
 	case "blur":
-		return nil, nil
+		if drivers.IsValidSelector(selector) {
+			return nil, dispatcher.BlurBySelector(ctx, selector)
+		}
+
+		return nil, dispatcher.Blur(ctx)
 	case "hover":
-		return nil, nil
+		if drivers.IsValidSelector(selector) {
+			return nil, dispatcher.HoverBySelector(ctx, selector)
+		}
+
+		return nil, dispatcher.Hover(ctx)
 	default:
 		return values.None, nil
 	}

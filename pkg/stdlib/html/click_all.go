@@ -55,5 +55,36 @@ func ClickAll(ctx context.Context, args ...core.Value) (core.Value, error) {
 		count = values.ToInt(args[2])
 	}
 
-	return values.True, el.ClickBySelectorAll(ctx, selector, count)
+	elements, err := Elements(ctx, el, selector)
+
+	if err != nil {
+		return nil, err
+	}
+
+	arr := values.ToArray(ctx, elements)
+
+	arr.ForEach(func(value core.Value, idx int) bool {
+		matched, e := drivers.ToElement(value)
+
+		if err != nil {
+			err = e
+			return false
+		}
+
+		e = matched.Click(ctx, count)
+
+		if e != nil {
+			err = e
+
+			return false
+		}
+
+		return true
+	})
+
+	if err != nil {
+		return values.False, err
+	}
+
+	return values.True, nil
 }

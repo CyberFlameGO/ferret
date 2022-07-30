@@ -26,6 +26,7 @@ type HTMLDocument struct {
 	logger    zerolog.Logger
 	client    *cdp.Client
 	dom       *Manager
+	input     *input.Manager
 	frameTree page.FrameTree
 	element   *HTMLElement
 }
@@ -38,7 +39,7 @@ func NewHTMLDocument(
 	exec *eval.Runtime,
 	rootElement *HTMLElement,
 	frames page.FrameTree,
-) drivers.HTMLDocument {
+) *HTMLDocument {
 	doc := new(HTMLDocument)
 	doc.Observable = NewObservable(rootElement.id, exec)
 	doc.Dispatcher = actions.NewDispatcher(rootElement.id, input)

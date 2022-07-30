@@ -41,7 +41,7 @@ func NewHTMLElement(
 	input *input.Manager,
 	exec *eval.Runtime,
 	id runtime.RemoteObjectID,
-) drivers.HTMLElement {
+) *HTMLElement {
 	el := new(HTMLElement)
 	el.Observable = NewObservable(id, exec)
 	el.Dispatcher = actions.NewDispatcher(id, input)
