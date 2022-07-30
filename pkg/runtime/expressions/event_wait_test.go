@@ -106,21 +106,21 @@ func (m *MockedObservable) Emit(ctx context.Context, eventName string, args core
 }
 
 func (m *MockedObservable) Subscribe(_ context.Context, sub events.Subscription) (events.Stream, error) {
-	calls, found := m.Args[sub.EventName]
+	calls, found := m.Args[sub.EventName.String()]
 
 	if !found {
 		calls = make([]*values.Object, 0, 10)
-		m.Args[sub.EventName] = calls
+		m.Args[sub.EventName.String()] = calls
 	}
 
-	es, found := m.subscribers[sub.EventName]
+	es, found := m.subscribers[sub.EventName.String()]
 
 	if !found {
 		es = NewMockedEventStream(make(chan events.Message))
-		m.subscribers[sub.EventName] = es
+		m.subscribers[sub.EventName.String()] = es
 	}
 
-	m.Args[sub.EventName] = append(calls, sub.Options)
+	m.Args[sub.EventName.String()] = append(calls, sub.Options)
 
 	return es, nil
 }
